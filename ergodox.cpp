@@ -4,24 +4,53 @@
 
 namespace ergodox {
 
+void RgbEffect::rgb_matrix_set_color(int index, uint8_t red, uint8_t green, uint8_t blue) {
+  preview_->setRgb(index, {red, green, blue});
+}
+
+void RgbEffect::rgb_matrix_set_color_all(uint8_t red, uint8_t green, uint8_t blue) {
+  preview_->setAllRgb({red, green, blue});
+}
+
+void RgbEffect::start(Preview *preview) {
+  preview_ = preview;
+}
+
+void RgbEffect::stop() {
+  preview_ = nullptr;
+}
+
 Preview::Preview() : vm_(std::cout) {
   setup();
 }
 
-void Preview::start() {
+Preview &Preview::setTicks(int ticks) {
+  ticks_ = ticks;
+  return *this;
+}
+Preview &Preview::setDelay(unsigned long delay) {
+  delay_ = delay;
+  return *this;
+}
+
+void Preview::start(RgbEffect *effect, RgbEffectRunner *runner) {
+  effect->start(this);
   // Calculate layout
   vm_.layout();
   // Draw layout
   vm_.refresh();
   // loop
-  for (int i = 0; i < 20; ++i) { //while (true) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    for (console::View &view : vm_.GetViews()) {
-      view.bgColor_.invert();
-      view.textColor_.invert();
+  effect_params_t params;
+  for (int i = 0; i < ticks_; ++i) { //while (true) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay_));
+    if (runner != nullptr) {
+      // TODO: use the runner here
+    } else {
+      effect->execEffect(&params);
     }
     vm_.refresh();
   }
+  effect->stop();
 }
 
 void Preview::setup() {
@@ -66,6 +95,16 @@ void Preview::setup() {
       ++row;
       col = 4;
     }
+  }
+}
+
+void Preview::setRgb(int index, console::Rgb24 color) {
+  vm_.getView(index)->setBgColor(color);
+}
+
+void Preview::setAllRgb(console::Rgb24 color) {
+  for (console::View &view : vm_.getViews()) {
+    view.setBgColor(color);
   }
 }
 

@@ -16,7 +16,8 @@ class ViewManager {
   explicit ViewManager(std::ostream &ostream);
   void refresh();
   void addView(View &view);
-  std::deque<View> &GetViews();
+  View *getView(int index);
+  std::deque<View> &getViews();
  protected:
   std::ostream& ostream_;
   // TODO: Minimum screen size check / enforcement

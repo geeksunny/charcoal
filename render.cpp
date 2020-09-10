@@ -16,7 +16,11 @@ void ViewManager::addView(View &view) {
   views_.push_back(view);
 }
 
-std::deque<View> &ViewManager::GetViews() {
+View *ViewManager::getView(int index) {
+  return &views_[index];
+}
+
+std::deque<View> &ViewManager::getViews() {
   return views_;
 }
 
