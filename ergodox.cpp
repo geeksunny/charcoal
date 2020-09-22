@@ -43,10 +43,13 @@ void Preview::start(RgbEffect *effect, RgbEffectRunner *runner) {
   effect_params_t params;
   for (int i = 0; i < ticks_; ++i) { //while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(delay_));
+    params.iter = 0;
     if (runner != nullptr) {
       // TODO: use the runner here
     } else {
-      effect->execEffect(&params);
+      while (effect->execEffect(&params)) {
+        params.iter++;
+      }
     }
     vm_.refresh();
   }
